@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabaseAdmin } from '../../lib/supabase';
+import { verifyToken, getUserById } from '../lib/auth';
 
-// GET /api/auth/me - Get current user from Supabase token
+// GET /api/auth/me - Get current user from JWT token
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -15,20 +15,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const token = authHeader.substring(7);
-    
-    // Verify the token with Supabase
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-    
-    if (error || !user) {
+    const payload = verifyToken(token);
+
+    if (!payload) {
       return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    // Get user
+    const user = await getUserById(payload.userId);
+    if (!user) {
+      return res.status(401).json({ error: 'User not found' });
     }
 
     return res.status(200).json({
       user: {
         id: user.id,
         email: user.email,
-        name: user.user_metadata?.name || user.user_metadata?.full_name,
-        email_verified: user.email_confirmed_at !== null,
+        name: user.name,
+        email_verified: user.email_verified,
       },
     });
   } catch (error) {

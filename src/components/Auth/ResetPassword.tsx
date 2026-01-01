@@ -1,64 +1,53 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/useAuthStore';
 import { Lock, CheckCircle } from 'lucide-react';
 
 export default function ResetPassword() {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const token = searchParams.get('token');
   
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  
+  const { resetPassword } = useAuthStore();
 
   useEffect(() => {
-    // Supabase handles the token via URL hash fragments
-    // Check if we have access to the session
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        setError('Invalid or expired reset link. Please request a new password reset.');
-      }
-    };
-    checkSession();
-  }, []);
+    if (!token) {
+      setError('Invalid reset token');
+    }
+  }, [token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
+
+    if (!token) {
+      setError('Invalid reset token');
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
-      setIsLoading(false);
       return;
     }
 
     if (password.length < 8) {
       setError('Password must be at least 8 characters');
-      setIsLoading(false);
       return;
     }
 
     try {
-      // Supabase handles password reset through updateUser
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: password,
-      });
-
-      if (updateError) {
-        throw updateError;
-      }
-
+      await resetPassword(token, password);
       setSuccess(true);
       setTimeout(() => {
         navigate('/signin');
       }, 2000);
     } catch (err: any) {
       setError(err.message || 'Failed to reset password');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -142,10 +131,9 @@ export default function ResetPassword() {
 
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors"
             >
-              {isLoading ? 'Resetting password...' : 'Reset password'}
+              Reset password
             </button>
           </form>
         </div>

@@ -1,17 +1,17 @@
 import { MindMapNode, MindMapEdge } from '../types';
-import { supabase } from './supabase';
+import { useAuthStore } from '../store/useAuthStore';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Helper to get auth headers
-async function getAuthHeaders(): Promise<HeadersInit> {
-  const { data: { session } } = await supabase.auth.getSession();
+function getAuthHeaders(): HeadersInit {
+  const token = useAuthStore.getState().token;
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   };
   
-  if (session?.access_token) {
-    headers['Authorization'] = `Bearer ${session.access_token}`;
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
   
   return headers;
@@ -30,7 +30,7 @@ export interface MindMap {
 
 // List all mind maps
 export async function listMindMaps(): Promise<MindMap[]> {
-  const headers = await getAuthHeaders();
+  const headers = getAuthHeaders();
   const response = await fetch(`${API_BASE_URL}/mindmaps`, {
     headers,
   });
@@ -42,7 +42,7 @@ export async function listMindMaps(): Promise<MindMap[]> {
 
 // Get a specific mind map with nodes and edges
 export async function getMindMap(id: string): Promise<MindMap> {
-  const headers = await getAuthHeaders();
+  const headers = getAuthHeaders();
   const response = await fetch(`${API_BASE_URL}/mindmaps/${id}`, {
     headers,
   });
@@ -61,7 +61,7 @@ export async function createMindMap(data: {
   isDarkMode?: boolean;
   userId?: string;
 }): Promise<MindMap> {
-  const headers = await getAuthHeaders();
+  const headers = getAuthHeaders();
   const response = await fetch(`${API_BASE_URL}/mindmaps`, {
     method: 'POST',
     headers,
@@ -83,7 +83,7 @@ export async function updateMindMap(
     isDarkMode?: boolean;
   }
 ): Promise<MindMap> {
-  const headers = await getAuthHeaders();
+  const headers = getAuthHeaders();
   const response = await fetch(`${API_BASE_URL}/mindmaps/${id}`, {
     method: 'PUT',
     headers,
@@ -101,7 +101,7 @@ export async function saveMindMap(
   nodes: MindMapNode[],
   edges: MindMapEdge[]
 ): Promise<{ message: string; nodesCount: number; edgesCount: number }> {
-  const headers = await getAuthHeaders();
+  const headers = getAuthHeaders();
   const response = await fetch(`${API_BASE_URL}/mindmaps/${id}/save`, {
     method: 'POST',
     headers,
@@ -115,7 +115,7 @@ export async function saveMindMap(
 
 // Delete a mind map
 export async function deleteMindMap(id: string): Promise<void> {
-  const headers = await getAuthHeaders();
+  const headers = getAuthHeaders();
   const response = await fetch(`${API_BASE_URL}/mindmaps/${id}`, {
     method: 'DELETE',
     headers,

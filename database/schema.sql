@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS mind_maps (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     is_dark_mode BOOLEAN DEFAULT false,
-    user_id VARCHAR(255), -- Optional: for future user authentication
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE, -- References users table
     CONSTRAINT mind_maps_name_check CHECK (char_length(name) > 0)
 );
 

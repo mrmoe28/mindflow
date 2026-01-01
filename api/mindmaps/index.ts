@@ -8,7 +8,7 @@ export default async function handler(
   res: VercelResponse
 ) {
   if (req.method === 'GET') {
-    const auth = await requireAuth(req, res);
+    const auth = requireAuth(req, res);
     if (!auth) return;
 
     try {
@@ -27,7 +27,7 @@ export default async function handler(
   }
 
   if (req.method === 'POST') {
-    const auth = await requireAuth(req, res);
+    const auth = requireAuth(req, res);
     if (!auth) return;
 
     try {

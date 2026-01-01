@@ -17,26 +17,24 @@ A sleek, professional mind mapping tool featuring an infinite canvas, custom nod
    npm install
    ```
 
-2. Configure Supabase:
+2. Configure environment variables:
    ```bash
-   # Quick setup (interactive)
-   npm run setup
-   
-   # Or manual setup
    cp .env.example .env
-   # Then edit .env with your Supabase credentials
-   ```
-   
-   **Note:** This app uses Supabase for authentication. See [SETUP_GUIDE.md](./SETUP_GUIDE.md) for detailed setup instructions.
-   
-3. Verify configuration:
-   ```bash
-   npm run setup:check
+   # Then edit .env with your NeonDB connection string
+   # DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
+   # JWT_SECRET=your-secret-key-change-in-production
    ```
 
-4. Run database migration:
+3. Run database migrations:
    ```bash
-   npm run db:migrate:supabase
+   # Run main schema
+   psql $DATABASE_URL -f database/schema.sql
+   
+   # Run authentication schema
+   psql $DATABASE_URL -f database/auth_schema.sql
+   
+   # Run NeonDB migration (if needed)
+   psql $DATABASE_URL -f database/neon_migration.sql
    ```
 
 5. Start the development server:
@@ -72,16 +70,21 @@ The app includes a PostgreSQL database backend for persisting mind maps.
 
 ### Database Setup
 
-1. Create a Supabase project at [supabase.com](https://supabase.com) or use an existing PostgreSQL database
-2. Run the schema migration:
+1. Create a NeonDB project at [neon.tech](https://neon.tech) or use an existing PostgreSQL database
+2. Run the schema migrations in order:
    ```bash
+   # Main schema (mind maps, nodes, edges)
    psql $DATABASE_URL -f database/schema.sql
+   
+   # Authentication schema (users, tokens)
+   psql $DATABASE_URL -f database/auth_schema.sql
+   
+   # NeonDB migration (updates user_id to UUID)
+   psql $DATABASE_URL -f database/neon_migration.sql
    ```
-3. If migrating from custom auth to Supabase, run:
-   ```bash
-   psql $DATABASE_URL -f database/supabase_migration.sql
-   ```
-4. Set the required environment variables in your `.env` file (see SUPABASE_MIGRATION.md)
+3. Set the required environment variables in your `.env` file:
+   - `DATABASE_URL` - Your NeonDB connection string
+   - `JWT_SECRET` - Secret key for JWT tokens (use a strong random string)
 
 ### API Endpoints
 
