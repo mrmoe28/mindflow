@@ -2,6 +2,8 @@
 
 A sleek, professional mind mapping tool featuring an infinite canvas, custom node editing, and instant structural templates.
 
+> **🚀 Quick Start:** New to Supabase? Get up and running in 5 minutes with [QUICK_START.md](./QUICK_START.md)
+
 ## Getting Started
 
 ### Prerequisites
@@ -15,17 +17,38 @@ A sleek, professional mind mapping tool featuring an infinite canvas, custom nod
    npm install
    ```
 
-2. Configure environment variables:
+2. Configure Supabase:
    ```bash
+   # Quick setup (interactive)
+   npm run setup
+   
+   # Or manual setup
    cp .env.example .env
-   # Add your DATABASE_URL connection string
-   # Example: DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
+   # Then edit .env with your Supabase credentials
+   ```
+   
+   **Note:** This app uses Supabase for authentication. See [SETUP_GUIDE.md](./SETUP_GUIDE.md) for detailed setup instructions.
+   
+3. Verify configuration:
+   ```bash
+   npm run setup:check
    ```
 
-3. Start the development server:
+4. Run database migration:
    ```bash
+   npm run db:migrate:supabase
+   ```
+
+5. Start the development server:
+   ```bash
+   # Install Vercel CLI if not already installed
+   npm i -g vercel
+   
+   # Start development server (handles both frontend and API routes)
    npm run dev
    ```
+   
+   **Note:** For local development, use `npm run dev` which runs `vercel dev`. This is required because the API routes are Vercel serverless functions. If you only want to run the frontend without API routes, use `npm run dev:vite`.
 
 ## Features
 - **Infinite Canvas**: Built with React Flow.
@@ -49,12 +72,16 @@ The app includes a PostgreSQL database backend for persisting mind maps.
 
 ### Database Setup
 
-1. Create a PostgreSQL database (e.g., using [Neon](https://neon.tech))
+1. Create a Supabase project at [supabase.com](https://supabase.com) or use an existing PostgreSQL database
 2. Run the schema migration:
    ```bash
    psql $DATABASE_URL -f database/schema.sql
    ```
-3. Set the `DATABASE_URL` environment variable in your `.env` file
+3. If migrating from custom auth to Supabase, run:
+   ```bash
+   psql $DATABASE_URL -f database/supabase_migration.sql
+   ```
+4. Set the required environment variables in your `.env` file (see SUPABASE_MIGRATION.md)
 
 ### API Endpoints
 

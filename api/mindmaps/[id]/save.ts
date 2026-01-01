@@ -14,7 +14,7 @@ export default async function handler(
 
   const { id } = req.query;
   
-  const auth = requireAuth(req, res);
+  const auth = await requireAuth(req, res);
   if (!auth) return;
 
   // Parse body if it's a Buffer or string

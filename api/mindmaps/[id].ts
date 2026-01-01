@@ -10,7 +10,7 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
-  const auth = requireAuth(req, res);
+  const auth = await requireAuth(req, res);
   if (!auth) return;
 
   const { id } = req.query;

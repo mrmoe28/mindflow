@@ -72,3 +72,42 @@ API endpoints were using custom request/response interfaces instead of Vercel's 
 - `api/mindmaps/[id].ts`
 - `api/mindmaps/[id]/save.ts`
 
+### Sign-In Not Working in Local Development
+
+**Symptoms:**
+- Sign-in form submits but API requests fail
+- 404 errors for `/api/auth/signin` endpoint
+- Network errors in browser console
+
+**Cause:**
+When running `npm run dev` with Vite, the API routes in the `api/` directory are not served because Vite doesn't know how to handle Vercel serverless functions.
+
+**Solution:**
+Use `vercel dev` for local development instead of `vite dev`. The `npm run dev` script has been updated to use `vercel dev` by default.
+
+1. Install Vercel CLI if not already installed:
+   ```bash
+   npm i -g vercel
+   ```
+
+2. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+   This will run `vercel dev` which handles both the frontend (Vite) and API routes (serverless functions).
+
+3. If you only want to run the frontend without API routes (for UI development only), use:
+   ```bash
+   npm run dev:vite
+   ```
+
+**Note:** Make sure you have a `.env` file with `DATABASE_URL` set for the API routes to work properly.
+- `api/auth/me.ts`
+- `api/auth/forgot-password.ts`
+- `api/auth/reset-password.ts`
+- `api/lib/middleware.ts`
+- `api/mindmaps/index.ts`
+- `api/mindmaps/[id].ts`
+- `api/mindmaps/[id]/save.ts`
+

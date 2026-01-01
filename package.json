@@ -4,12 +4,19 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vercel dev",
+    "dev:vite": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "start": "vite"
+    "start": "vite",
+    "db:migrate": "node scripts/migrate.js",
+    "db:migrate:supabase": "node scripts/migrate-supabase.js",
+    "setup": "node scripts/setup.js",
+    "setup:check": "node scripts/check-env.js"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.89.0",
     "@vercel/postgres": "^0.5.1",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.0",
