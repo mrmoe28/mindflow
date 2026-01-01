@@ -13,9 +13,46 @@ const AppContent: React.FC = () => {
   const { isDarkMode, toggleDarkMode, clearCanvas, addNode } = useMindMapStore();
   const { user, signOut, isAuthenticated, checkAuth, isLoading } = useAuthStore();
 
+  // Check if Supabase is configured
+  const isSupabaseConfigured = import.meta.env.VITE_SUPABASE_URL && 
+                                 import.meta.env.VITE_SUPABASE_ANON_KEY &&
+                                 import.meta.env.VITE_SUPABASE_URL !== 'https://placeholder.supabase.co';
+
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    if (isSupabaseConfigured) {
+      checkAuth();
+    }
+  }, [checkAuth, isSupabaseConfigured]);
+
+  if (!isSupabaseConfigured) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4">
+        <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-8">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+              Configuration Required
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 mb-6">
+              Supabase environment variables are not configured. Please set the following in your Vercel project settings:
+            </p>
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 mb-6 text-left">
+              <ul className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                <li>• VITE_SUPABASE_URL</li>
+                <li>• VITE_SUPABASE_ANON_KEY</li>
+                <li>• SUPABASE_URL</li>
+                <li>• SUPABASE_ANON_KEY</li>
+                <li>• SUPABASE_SERVICE_ROLE_KEY</li>
+                <li>• DATABASE_URL</li>
+              </ul>
+            </div>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              See <a href="https://github.com/mrmoe28/mindflow/blob/main/VERCEL_SETUP.md" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">VERCEL_SETUP.md</a> for detailed instructions.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
