@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
-import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
+import type { Session } from '@supabase/supabase-js';
 
 export interface User {
   id: string;
@@ -25,7 +25,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       session: null,
       isAuthenticated: false,
@@ -160,7 +160,7 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      resetPassword: async (token: string, password: string) => {
+      resetPassword: async (_token: string, password: string) => {
         // Note: With Supabase, password reset is handled through URL callbacks
         // The ResetPassword component handles this directly
         // This function is kept for compatibility but may not be used
@@ -188,12 +188,6 @@ supabase.auth.onAuthStateChange((event, session) => {
   const store = useAuthStore.getState();
   
   if (event === 'SIGNED_IN' && session) {
-    const user: User = {
-      id: session.user.id,
-      email: session.user.email || '',
-      name: session.user.user_metadata?.name || session.user.user_metadata?.full_name,
-      email_verified: session.user.email_confirmed_at !== null,
-    };
     store.checkAuth();
   } else if (event === 'SIGNED_OUT') {
     store.signOut();
