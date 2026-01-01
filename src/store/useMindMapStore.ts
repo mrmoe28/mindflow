@@ -12,6 +12,7 @@ import {
 } from 'reactflow';
 import { StoreState, TemplateType, MindMapNode, MindMapEdge, Alignment, MindMapData } from '../types';
 import { nanoid } from 'nanoid';
+import * as api from '../lib/api';
 
 // Initial placeholder state
 const initialNodes: MindMapNode[] = [
@@ -406,5 +407,55 @@ export const useMindMapStore = create<StoreState & {
   clearCanvas: () => {
     get().takeSnapshot();
     set({ nodes: [], edges: [] });
-  }
+  },
+
+  // API Methods
+  currentMindMapId: undefined,
+
+  saveToDatabase: async (mindMapId?: string) => {
+    const id = mindMapId || get().currentMindMapId;
+    if (!id) {
+      throw new Error('No mind map ID provided. Create a mind map first.');
+    }
+    const { nodes, edges } = get();
+    try {
+      await api.saveMindMap(id, nodes, edges);
+    } catch (error) {
+      console.error('Failed to save mind map:', error);
+      throw error;
+    }
+  },
+
+  loadFromDatabase: async (mindMapId: string) => {
+    try {
+      const mindMap = await api.getMindMap(mindMapId);
+      if (mindMap.nodes && mindMap.edges) {
+        get().takeSnapshot();
+        set({
+          nodes: mindMap.nodes,
+          edges: mindMap.edges,
+          isDarkMode: mindMap.is_dark_mode,
+          currentMindMapId: mindMapId,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load mind map:', error);
+      throw error;
+    }
+  },
+
+  createNewMindMap: async (name?: string) => {
+    try {
+      const { isDarkMode } = get();
+      const mindMap = await api.createMindMap({
+        name: name || 'Untitled Map',
+        isDarkMode,
+      });
+      set({ currentMindMapId: mindMap.id });
+      return mindMap.id;
+    } catch (error) {
+      console.error('Failed to create mind map:', error);
+      throw error;
+    }
+  },
 }));

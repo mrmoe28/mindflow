@@ -74,4 +74,10 @@ export interface StoreState {
   undo: () => void;
   redo: () => void;
   takeSnapshot: () => void;
+  
+  // API Actions (optional - for database persistence)
+  currentMindMapId?: string;
+  saveToDatabase: (mindMapId?: string) => Promise<void>;
+  loadFromDatabase: (mindMapId: string) => Promise<void>;
+  createNewMindMap: (name?: string) => Promise<string>;
 }

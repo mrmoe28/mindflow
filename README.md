@@ -18,7 +18,8 @@ A sleek, professional mind mapping tool featuring an infinite canvas, custom nod
 2. Configure environment variables:
    ```bash
    cp .env.example .env
-   # Add your Google API Key if required for specific features
+   # Add your DATABASE_URL connection string
+   # Example: DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
    ```
 
 3. Start the development server:
@@ -39,6 +40,45 @@ A sleek, professional mind mapping tool featuring an infinite canvas, custom nod
 - **src/store**: Global state management via Zustand.
 - **src/types**: TypeScript definitions.
 - **src/utils**: Helper functions.
+- **src/lib/api.ts**: API client for database operations.
+- **api/**: Vercel Serverless Functions for backend API.
+
+## Database & API
+
+The app includes a PostgreSQL database backend for persisting mind maps.
+
+### Database Setup
+
+1. Create a PostgreSQL database (e.g., using [Neon](https://neon.tech))
+2. Run the schema migration:
+   ```bash
+   psql $DATABASE_URL -f database/schema.sql
+   ```
+3. Set the `DATABASE_URL` environment variable in your `.env` file
+
+### API Endpoints
+
+- `GET /api/mindmaps` - List all mind maps
+- `GET /api/mindmaps/[id]` - Get a specific mind map with nodes and edges
+- `POST /api/mindmaps` - Create a new mind map
+- `PUT /api/mindmaps/[id]` - Update a mind map
+- `POST /api/mindmaps/[id]/save` - Save nodes and edges for a mind map
+- `DELETE /api/mindmaps/[id]` - Delete a mind map
+
+### Using the API in Your Code
+
+```typescript
+import { useMindMapStore } from './store/useMindMapStore';
+
+// Create a new mind map
+const mindMapId = await useMindMapStore.getState().createNewMindMap('My Map');
+
+// Save current state
+await useMindMapStore.getState().saveToDatabase(mindMapId);
+
+// Load a mind map
+await useMindMapStore.getState().loadFromDatabase(mindMapId);
+```
 
 ## Deployment
 

@@ -1,12 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Canvas from './components/MindMap/Canvas';
 import TemplateSelector from './components/MindMap/TemplateSelector';
 import { useMindMapStore } from './store/useMindMapStore';
-import { Moon, Sun, Plus, X, Command, Layout } from 'lucide-react';
+import { useAuthStore } from './store/useAuthStore';
+import AuthPage from './components/Auth/AuthPage';
+import ResetPassword from './components/Auth/ResetPassword';
+import { Moon, Sun, Plus, X, Command, Layout, LogOut, User } from 'lucide-react';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const { isDarkMode, toggleDarkMode, clearCanvas, addNode } = useMindMapStore();
+  const { user, signOut, isAuthenticated, checkAuth, isLoading } = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="text-slate-600 dark:text-slate-400">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthPage />;
+  }
 
   return (
     <div className={`w-full h-screen flex flex-col overflow-hidden ${isDarkMode ? 'dark' : ''}`}>
@@ -40,12 +61,26 @@ const App: React.FC = () => {
           </button>
           
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
-          
+
+          {/* User Menu */}
+          <div className="flex items-center gap-2 px-3 py-1.5 text-sm text-slate-600 dark:text-slate-400">
+            <User size={16} />
+            <span className="hidden sm:inline">{user?.email}</span>
+          </div>
+
           <button
             onClick={toggleDarkMode}
             className="p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
           >
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+
+          <button
+            onClick={signOut}
+            className="p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+            title="Sign out"
+          >
+            <LogOut size={20} />
           </button>
         </div>
       </div>
@@ -92,6 +127,18 @@ const App: React.FC = () => {
         </div>
       )}
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<AppContent />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 };
 
