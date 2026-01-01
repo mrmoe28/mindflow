@@ -1,19 +1,6 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { sql, MindMapRow } from '../lib/db';
 import { requireAuth } from '../lib/middleware';
-
-export interface VercelRequest {
-  method?: string;
-  headers: {
-    authorization?: string;
-  };
-  query: Record<string, string | string[]>;
-  body: any;
-}
-
-export interface VercelResponse {
-  status: (code: number) => VercelResponse;
-  json: (data: any) => void;
-}
 
 // GET /api/mindmaps - List all mind maps for authenticated user
 export default async function handler(
@@ -44,7 +31,15 @@ export default async function handler(
     if (!auth) return;
 
     try {
-      const { name, isDarkMode } = req.body;
+      // Parse body if it's a Buffer or string
+      let body = req.body;
+      if (Buffer.isBuffer(body)) {
+        body = JSON.parse(body.toString());
+      } else if (typeof body === 'string') {
+        body = JSON.parse(body);
+      }
+
+      const { name, isDarkMode } = body as { name?: string; isDarkMode?: boolean };
 
       const [mindMap] = await sql<MindMapRow[]>`
         INSERT INTO mind_maps (name, is_dark_mode, user_id)

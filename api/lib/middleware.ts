@@ -1,16 +1,5 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { verifyToken } from './auth';
-
-export interface VercelRequest {
-  headers: {
-    authorization?: string;
-  };
-  [key: string]: any;
-}
-
-export interface VercelResponse {
-  status: (code: number) => VercelResponse;
-  json: (data: any) => void;
-}
 
 // Authentication middleware
 export function requireAuth(

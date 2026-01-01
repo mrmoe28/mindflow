@@ -1,21 +1,20 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getUserByEmail, generatePasswordResetToken } from '../lib/auth';
-
-export interface VercelRequest {
-  method?: string;
-  body: any;
-}
-
-export interface VercelResponse {
-  status: (code: number) => VercelResponse;
-  json: (data: any) => void;
-}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { email } = req.body;
+  // Parse body if it's a Buffer or string
+  let body = req.body;
+  if (Buffer.isBuffer(body)) {
+    body = JSON.parse(body.toString());
+  } else if (typeof body === 'string') {
+    body = JSON.parse(body);
+  }
+
+  const { email } = body as { email: string };
 
   if (!email) {
     return res.status(400).json({ error: 'Email is required' });

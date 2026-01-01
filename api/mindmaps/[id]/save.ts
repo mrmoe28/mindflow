@@ -1,20 +1,7 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { sql, mindMapNodeToNodeRow, mindMapEdgeToEdgeRow } from '../../lib/db';
 import { MindMapNode, MindMapEdge } from '../../../src/types';
 import { requireAuth } from '../../lib/middleware';
-
-export interface VercelRequest {
-  method?: string;
-  headers: {
-    authorization?: string;
-  };
-  query: Record<string, string | string[]>;
-  body: any;
-}
-
-export interface VercelResponse {
-  status: (code: number) => VercelResponse;
-  json: (data: any) => void;
-}
 
 // POST /api/mindmaps/[id]/save - Save nodes and edges for a mind map
 export default async function handler(
@@ -29,7 +16,16 @@ export default async function handler(
   
   const auth = requireAuth(req, res);
   if (!auth) return;
-  const { nodes, edges } = req.body;
+
+  // Parse body if it's a Buffer or string
+  let body = req.body;
+  if (Buffer.isBuffer(body)) {
+    body = JSON.parse(body.toString());
+  } else if (typeof body === 'string') {
+    body = JSON.parse(body);
+  }
+
+  const { nodes, edges } = body as { nodes: MindMapNode[]; edges: MindMapEdge[] };
 
   if (!id || typeof id !== 'string') {
     return res.status(400).json({ error: 'Invalid mind map ID' });

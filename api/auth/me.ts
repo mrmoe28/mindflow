@@ -1,16 +1,5 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { verifyToken, getUserById } from '../lib/auth';
-
-export interface VercelRequest {
-  method?: string;
-  headers: {
-    authorization?: string;
-  };
-}
-
-export interface VercelResponse {
-  status: (code: number) => VercelResponse;
-  json: (data: any) => void;
-}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {

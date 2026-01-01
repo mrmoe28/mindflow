@@ -1,20 +1,7 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { sql, nodeRowToMindMapNode, edgeRowToMindMapEdge, mindMapNodeToNodeRow, mindMapEdgeToEdgeRow } from '../lib/db';
 import { MindMapNode, MindMapEdge } from '../../src/types';
 import { requireAuth } from '../lib/middleware';
-
-export interface VercelRequest {
-  method?: string;
-  headers: {
-    authorization?: string;
-  };
-  query: Record<string, string | string[]>;
-  body: any;
-}
-
-export interface VercelResponse {
-  status: (code: number) => VercelResponse;
-  json: (data: any) => void;
-}
 
 // GET /api/mindmaps/[id] - Get a specific mind map with nodes and edges
 // PUT /api/mindmaps/[id] - Update a mind map
@@ -73,7 +60,20 @@ export default async function handler(
 
   if (req.method === 'PUT') {
     try {
-      const { name, nodes, edges, isDarkMode } = req.body;
+      // Parse body if it's a Buffer or string
+      let body = req.body;
+      if (Buffer.isBuffer(body)) {
+        body = JSON.parse(body.toString());
+      } else if (typeof body === 'string') {
+        body = JSON.parse(body);
+      }
+
+      const { name, nodes, edges, isDarkMode } = body as { 
+        name?: string; 
+        nodes?: MindMapNode[]; 
+        edges?: MindMapEdge[]; 
+        isDarkMode?: boolean 
+      };
 
       // Update mind map metadata
       if (name !== undefined || isDarkMode !== undefined) {
