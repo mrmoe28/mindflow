@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import 'reactflow/dist/style.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans overflow-hidden;
+  }
+}
+
+/* Custom Scrollbar for panels */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; 
+}
+
+.react-flow__controls {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+.react-flow__controls-button {
+  border-bottom: 1px solid #e2e8f0;
+  background-color: white;
+}
+.dark .react-flow__controls {
+  border-color: #334155;
+}
+.dark .react-flow__controls-button {
+  background-color: #1e293b;
+  border-color: #334155;
+  fill: #94a3b8;
+}
+.dark .react-flow__controls-button:hover {
+  background-color: #334155;
+}
