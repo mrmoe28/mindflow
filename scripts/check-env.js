@@ -218,4 +218,3 @@ if (hasErrors) {
   console.log('  - Start development: npm run dev');
   process.exit(0);
 }
-
