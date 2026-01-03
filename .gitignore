@@ -96,3 +96,6 @@ typings/
 
 # Vite build
 dist/
+
+# Nested repository
+mindflow-main/
